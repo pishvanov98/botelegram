@@ -25,6 +25,11 @@ class mainConversation extends conversation
     public function run () {
 
         try {
+//            $check_chat=request()->all();
+//            info($check_chat['my_chat_member']['chat']);
+//нужна проверка на чат
+
+
             switch ($this->bot->getConversationAnswer()) {
                 case "/NomenclaturaFile":
                     $this->NomenclaturaFile();
