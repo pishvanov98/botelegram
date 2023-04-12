@@ -4,7 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class nomenklatura extends Model
+class Nomenklatura extends Model
 {
     protected $table = 'nomenklatura';
+
 }
