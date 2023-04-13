@@ -197,13 +197,11 @@ class mainConversation extends conversation
 
     private function getNomenklatura($num){
 
-       $data=DB::table('nomenklatura')->where('kod_nomenklatura', 'LIKE', '%'  .$num. '%')->get();
+       $data=DB::table('nomenklatura')->where('kod_nomenklatura', 'LIKE', '%'  .$num. '%')->get()->toArray();
 
         if(!empty($data)){
-
-            return $data->toArray();
+            return $data;
         }else{
-
             $question = BotManQuestion::create('Не найдено, попробуйте еще раз');
 
             $this->ask( $question, function ( BotManAnswer $answer ) {
@@ -211,8 +209,6 @@ class mainConversation extends conversation
                     $this->extracted($answer);
                 }
             });
-
-
         }
 
 
