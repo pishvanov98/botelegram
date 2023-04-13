@@ -25,8 +25,6 @@ class mainConversation extends conversation
     public function run () {
 
         try {
-
-
             switch ($this->bot->getConversationAnswer()) {
                 case "/NomenclaturaFile":
                     $this->NomenclaturaFile();
@@ -224,10 +222,9 @@ class mainConversation extends conversation
     $text='';
     $i=0;
     $message_mass=array();
-        info($data);
     foreach ($data as $item_out){
         $resultArray = json_decode(json_encode((array)$item_out), true);
-        $key=$resultArray['kod_nomenklatura'].$resultArray['harakteristic_nomenklatura'];
+        $key=$resultArray['kod_nomenklatura'].$resultArray['harakteristic_nomenklatura'];//проверка, если у товара всё одинаково кроме места хранения дописываем элементу массива еще одно место хванение, если различие есть в характеристике то создаем новый элемент
         if(!empty($message_mass[$key]) && $message_mass[$key]['name_nomenklatura'] == $resultArray['name_nomenklatura'] && $message_mass[$key]['harakteristic_nomenklatura'] == $resultArray['harakteristic_nomenklatura'] && $message_mass[$key]['storage_nomenklatura'] != $resultArray['storage_nomenklatura']){
 
             $message_mass[$key]['storage_nomenklatura']=$message_mass[$key]['storage_nomenklatura']. ' , '.$resultArray['storage_nomenklatura'];
@@ -236,7 +233,7 @@ class mainConversation extends conversation
             $message_mass[$key]=$resultArray;
         }
     }
-        info($message_mass);
+        //info($message_mass);
 
         foreach ($message_mass as $item_message){
 
