@@ -256,7 +256,7 @@ class mainConversation extends conversation
      */
     private function extracted(BotManAnswer $answer): void
     {
-        if ($answer->getText() == 'stop') {
+        if ($answer->getText() == 'stop'|| $answer->getText() == '/start') {
 //            $this->stopsConversation();
               $this->run();
         } else {
