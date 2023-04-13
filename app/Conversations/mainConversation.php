@@ -140,7 +140,7 @@ class mainConversation extends conversation
                     $this->bot->reply("База не обновлена, день еще не прошел с последнего обновления.");
                 }
             }else{
-
+                DB::table('nomenklatura')->truncate();
                 $this->addToBdXmlNomenclatura($data);
 
                 DB::table('update_file')->insert([
@@ -201,7 +201,6 @@ class mainConversation extends conversation
 
        $data=DB::table('nomenklatura')->where('kod_nomenklatura', 'LIKE', '%'  .$num. '%')->get();
 
-
         if(!empty($data)){
 
             return $data->toArray();
@@ -224,14 +223,31 @@ class mainConversation extends conversation
     private function OutNomenklatura($data){
     $text='';
     $i=0;
+    $message_mass=array();
+        info($data);
     foreach ($data as $item_out){
         $resultArray = json_decode(json_encode((array)$item_out), true);
-        $text.='<b>Код номенклатуры: </b>'.$resultArray['kod_nomenklatura']. PHP_EOL ;
-        $text.='<b>Наименование: </b>'.$resultArray['name_nomenklatura']. PHP_EOL ;
-        $text.='<b>Характеристика: </b>'.$resultArray['harakteristic_nomenklatura']. PHP_EOL;
-        $text.='<b>Место хранения: </b>'.$resultArray['storage_nomenklatura']. PHP_EOL.PHP_EOL;
-        $i++;
+        $key=$resultArray['kod_nomenklatura'].$resultArray['harakteristic_nomenklatura'];
+        if(!empty($message_mass[$key]) && $message_mass[$key]['name_nomenklatura'] == $resultArray['name_nomenklatura'] && $message_mass[$key]['harakteristic_nomenklatura'] == $resultArray['harakteristic_nomenklatura'] && $message_mass[$key]['storage_nomenklatura'] != $resultArray['storage_nomenklatura']){
+
+            $message_mass[$key]['storage_nomenklatura']=$message_mass[$key]['storage_nomenklatura']. ' , '.$resultArray['storage_nomenklatura'];
+
+        }else{
+            $message_mass[$key]=$resultArray;
+        }
     }
+        info($message_mass);
+
+        foreach ($message_mass as $item_message){
+
+            $text.='<b>Код номенклатуры: </b>'.$item_message['kod_nomenklatura']. PHP_EOL ;
+            $text.='<b>Наименование: </b>'.$item_message['name_nomenklatura']. PHP_EOL ;
+            $text.='<b>Характеристика: </b>'.$item_message['harakteristic_nomenklatura']. PHP_EOL;
+            $text.='<b>Место хранения: </b>'.$item_message['storage_nomenklatura']. PHP_EOL.PHP_EOL;
+            $i++;
+        }
+
+
 
     if($i > 1){
         $text= 'Найдено несколько результатов:'.PHP_EOL.PHP_EOL.$text;
@@ -261,8 +277,8 @@ class mainConversation extends conversation
               $this->run();
         } else {
             if (is_numeric($answer->getText())) {
-                if(strlen($answer->getText()) <= 3){
-                    $question = BotManQuestion::create("В коде номенклатуры должно содержаться более 3 цифр");
+                if(strlen($answer->getText()) <= 4){
+                    $question = BotManQuestion::create("В коде номенклатуры должно содержаться более 4 цифр");
                     $this->ask( $question, function ( BotManAnswer $answer ) {
                         if( $answer->getText () != '' ){
                             $this->extracted($answer);
