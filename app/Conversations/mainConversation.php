@@ -25,9 +25,6 @@ class mainConversation extends conversation
     public function run () {
 
         try {
-//            $check_chat=request()->all();
-//            info($check_chat['my_chat_member']['chat']);
-//нужна проверка на чат
 
 
             switch ($this->bot->getConversationAnswer()) {
@@ -35,10 +32,10 @@ class mainConversation extends conversation
                     $this->NomenclaturaFile();
                     break;
                 case "/start":
-                    $this->ShowConversationStart();
+                    $this->ShowButton();
                     break;
                 default:
-                    $this->bot->reply("Введите /start");
+                    $this->ShowButton();
             }
         } catch (Exception $e) {
             $this->bot->reply("Ошибка");
@@ -51,7 +48,7 @@ class mainConversation extends conversation
 
         $this->ask( $question, function ( BotManAnswer $answer ) {
             if( $answer->getText () != '' ){
-                array_push ($this->response, $answer->getText());
+//                array_push ($this->response, $answer->getText());
 //                info($answer->getText());
                 $this->extracted($answer);
             }
@@ -88,22 +85,24 @@ class mainConversation extends conversation
 //        });
 //    }
 
-//    private function askWeather () {
-//        $question = BotManQuestion::create("Тебе нравится погода на улице?");
-//
-//        $question->addButtons( [
-//            Button::create('Да')->value(1),
-//            Button::create('Нет')->value(2)
-//        ]);
-//
-//        $this->ask($question, function (BotManAnswer $answer) {
-//            // здесь можно указать какие либо условия, но нам это не нужно сейчас
-//
-//            array_push ($this->response, $answer);
-//
-//            $this->exit();
-//        });
-//    }
+    private function ShowButton () {
+        $question = BotManQuestion::create("Выберите что нужно сделать");
+
+        $question->addButtons( [
+            Button::create('Показать места номенклатуры')->value(1)//,
+            //Button::create('Нет')->value(2)
+        ]);
+
+        $this->ask($question, function (BotManAnswer $answer) {
+
+            if($answer->getText() == 1){
+                $this->ShowConversationStart();
+            }else{
+                $this->run();
+            }
+
+        });
+    }
 
 //    private function exit() {
 //        $db = new database();
@@ -131,8 +130,6 @@ class mainConversation extends conversation
                 if(!empty($date_file)){
 //                    info($date_file);
                     info("записи устарели, удаляем и обновляем на новые");
-
-
                     DB::table('nomenklatura')->truncate();
                     $this->addToBdXmlNomenclatura($data);
                     DB::table("update_file")->where('name_file', 'file\Nomenclatura.xml')->update(['updated_at'=>$now]);
@@ -189,6 +186,11 @@ class mainConversation extends conversation
                 if(!empty($decode_xml_nomenklatura)){
                     DB::table('nomenklatura')->truncate();
                     $this->addToBdXmlNomenclatura($decode_xml_nomenklatura['Товар']);
+
+                    DB::table('update_file')->where('name_file','file\Nomenclatura.xml')->update([
+                        'updated_at' => $now  // remove if not using timestamps
+                    ]);
+
                 }
             }
         }
@@ -224,6 +226,7 @@ class mainConversation extends conversation
     $i=0;
     foreach ($data as $item_out){
         $resultArray = json_decode(json_encode((array)$item_out), true);
+        $text.='<b>Код номенклатуры: </b>'.$resultArray['kod_nomenklatura']. PHP_EOL ;
         $text.='<b>Наименование: </b>'.$resultArray['name_nomenklatura']. PHP_EOL ;
         $text.='<b>Характеристика: </b>'.$resultArray['harakteristic_nomenklatura']. PHP_EOL;
         $text.='<b>Место хранения: </b>'.$resultArray['storage_nomenklatura']. PHP_EOL.PHP_EOL;
@@ -254,17 +257,24 @@ class mainConversation extends conversation
     private function extracted(BotManAnswer $answer): void
     {
         if ($answer->getText() == 'stop') {
-            $this->stopsConversation();
+//            $this->stopsConversation();
+              $this->run();
         } else {
-            if (is_numeric($answer->getText()) && strlen($answer->getText()) > 3) {
-                $this->bot->reply($answer->getText());
-
-                $this->CheckFileOldNomenclatura();
-                $info_nimenklatura = $this->getNomenklatura($answer->getText());
-                if (!empty($info_nimenklatura)) {
-                    $this->OutNomenklatura($info_nimenklatura);
+            if (is_numeric($answer->getText())) {
+                if(strlen($answer->getText()) <= 3){
+                    $question = BotManQuestion::create("В коде номенклатуры должно содержаться более 3 цифр");
+                    $this->ask( $question, function ( BotManAnswer $answer ) {
+                        if( $answer->getText () != '' ){
+                            $this->extracted($answer);
+                        }
+                    });
+                }else{
+                    $this->CheckFileOldNomenclatura();
+                    $info_nimenklatura = $this->getNomenklatura($answer->getText());
+                    if (!empty($info_nimenklatura)) {
+                        $this->OutNomenklatura($info_nimenklatura);
+                    }
                 }
-
             } else {
                 $this->ShowConversationStart();
             }
