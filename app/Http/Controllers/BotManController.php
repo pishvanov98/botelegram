@@ -14,7 +14,7 @@ class BotManController extends Controller
      */
     public function handle()
     {
-//        info(request()->all());
+//       info(request()->all());
 
         $botman = app('botman');
 

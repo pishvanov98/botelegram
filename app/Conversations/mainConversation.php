@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Conversations;
+use App\Http\Controllers\LoadFileTController;
 use app\messengerUser;
 
 use App\messengerUser as database;
@@ -23,6 +24,19 @@ class mainConversation extends conversation
     public $response = [];
 
     public function run () {
+
+            $channel_download=request()->all();
+            if(!empty($channel_download['channel_post']['sender_chat']['title']) && $channel_download['channel_post']['sender_chat']['title'] == 'ЗагрузкаФайловВБота' && !empty($channel_download['channel_post']['document'])){
+                info($channel_download['channel_post']);
+
+                $LoadFile=new LoadFileTController();
+               $Loader= $LoadFile->load($channel_download['channel_post']['document']['file_id']);
+
+               if($Loader == true){
+                   $this->bot->reply("Файл Записан");
+               }
+                return true;
+            }
 
         try {
             switch ($this->bot->getConversationAnswer()) {
