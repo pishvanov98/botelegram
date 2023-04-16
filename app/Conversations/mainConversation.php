@@ -27,32 +27,32 @@ class mainConversation extends conversation
 
             $channel_download=request()->all();
             if(!empty($channel_download['channel_post']['sender_chat']['title']) && $channel_download['channel_post']['sender_chat']['title'] == 'ЗагрузкаФайловВБота' && !empty($channel_download['channel_post']['document'])){
-                info($channel_download['channel_post']);
+
 
                 $LoadFile=new LoadFileTController();
                $Loader= $LoadFile->load($channel_download['channel_post']['document']['file_id']);
 
                if($Loader == true){
                    $this->bot->reply("Файл Записан");
+//                   $this->NomenclaturaFile();
                }
                 return true;
+            }else{
+                try {
+                    switch ($this->bot->getConversationAnswer()) {
+                        case "/NomenclaturaFile":
+                            $this->NomenclaturaFile();
+                            break;
+                        case "/start":
+                            $this->ShowButton();
+                            break;
+                        default:
+                            $this->ShowButton();
+                    }
+                } catch (Exception $e) {
+                    $this->bot->reply("Ошибка");
+                }
             }
-
-        try {
-            switch ($this->bot->getConversationAnswer()) {
-                case "/NomenclaturaFile":
-                    $this->NomenclaturaFile();
-                    break;
-                case "/start":
-                    $this->ShowButton();
-                    break;
-                default:
-                    $this->ShowButton();
-            }
-        } catch (Exception $e) {
-            $this->bot->reply("Ошибка");
-        }
-
     }
 
     private function ShowConversationStart(){
@@ -82,7 +82,6 @@ class mainConversation extends conversation
             $this->bot->reply("Файла для обновления нет...");
         }
         return true;
-
     }
 
 //    private function setName() {
@@ -166,6 +165,7 @@ class mainConversation extends conversation
         }
 
     }
+
     private function addToBdXmlNomenclatura($data){
         $now = Carbon::now();
         $mass_nomenclature=array();
@@ -185,26 +185,6 @@ class mainConversation extends conversation
         foreach (array_chunk($mass_nomenclature,1000) as $t)
         {
             DB::table('nomenklatura')->insert($t);
-        }
-    }
-
-    private function CheckFileOldNomenclatura(){
-        $now = Carbon::now();
-        $name_file=DB::table("update_file")->where('name_file', 'file\Nomenclatura.xml')->whereDate('updated_at', '<', $now)->value('name_file');
-        if(!empty($name_file)){
-            $XmlDecodeController=new XmlDecodeController();
-            if (file_exists(public_path('file\Nomenclatura.xml'))){
-                $decode_xml_nomenklatura= $XmlDecodeController->decode(public_path('file\Nomenclatura.xml'));
-                if(!empty($decode_xml_nomenklatura)){
-                    DB::table('nomenklatura')->truncate();
-                    $this->addToBdXmlNomenclatura($decode_xml_nomenklatura['Товар']);
-
-                    DB::table('update_file')->where('name_file','file\Nomenclatura.xml')->update([
-                        'updated_at' => $now  // remove if not using timestamps
-                    ]);
-
-                }
-            }
         }
     }
 
@@ -292,7 +272,6 @@ class mainConversation extends conversation
                         }
                     });
                 }else{
-                    $this->CheckFileOldNomenclatura();
                     $info_nimenklatura = $this->getNomenklatura($answer->getText());
                     if (!empty($info_nimenklatura)) {
                         $this->OutNomenklatura($info_nimenklatura);

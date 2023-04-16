@@ -29,6 +29,10 @@ class LoadFileTController extends Controller
             $html_file = curl_exec($ch);
             curl_close($ch);
 
+//            if (file_exists(public_path('file\Nomenclatura.xml'))){
+//                unlink(public_path('file\Nomenclatura.xml'));
+//            }
+
             file_put_contents(public_path('file\Nomenclatura.xml'), $html_file);
 
             return true;
