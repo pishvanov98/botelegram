@@ -34,7 +34,7 @@ class mainConversation extends conversation
 
                if($Loader == true){
                    $this->bot->reply("Файл Записан");
-//                   $this->NomenclaturaFile();
+                   $this->NomenclaturaFile();
                }
                 return true;
             }else{

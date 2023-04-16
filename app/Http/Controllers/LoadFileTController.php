@@ -29,12 +29,19 @@ class LoadFileTController extends Controller
             $html_file = curl_exec($ch);
             curl_close($ch);
 
-//            if (file_exists(public_path('file\Nomenclatura.xml'))){
-//                unlink(public_path('file\Nomenclatura.xml'));
-//            }
 
-            file_put_contents(public_path('file\Nomenclatura.xml'), $html_file);
+            file_put_contents(public_path('file\Nomenclatura.zip'), $html_file);
 
+
+            $zip = new \ZipArchive;
+
+if ($zip->open(public_path('file\Nomenclatura.zip')) === TRUE) {
+
+    // путь к каталогу, в который будут помещены файлы
+    $zip->extractTo(public_path('file'));
+
+    $zip->close();
+}
             return true;
         }else{
             return false;
