@@ -84,16 +84,24 @@ class mainConversation extends conversation
         return true;
     }
 
-//    private function setName() {
-//        $question = BotManQuestion::create("Привет! Как тебя зовут?");
+//    private function CheckFileOldNomenclatura(){
+//        $now = Carbon::now();
+//        $name_file=DB::table("update_file")->where('name_file', 'file\Nomenclatura.xml')->whereDate('updated_at', '<', $now)->value('name_file');
+//        if(!empty($name_file)){
+//            $XmlDecodeController=new XmlDecodeController();
+//            if (file_exists(public_path('file\Nomenclatura.xml'))){
+//                $decode_xml_nomenklatura= $XmlDecodeController->decode(public_path('file\Nomenclatura.xml'));
+//                if(!empty($decode_xml_nomenklatura)){
+//                    DB::table('nomenklatura')->truncate();
+//                    $this->addToBdXmlNomenclatura($decode_xml_nomenklatura['Товар']);
 //
-//        $this->ask( $question, function ( BotManAnswer $answer ) {
-//            if( $answer->getText () != '' ){
-//                array_push ($this->response, $answer->getText());
+//                    DB::table('update_file')->where('name_file','file\Nomenclatura.xml')->update([
+//                        'updated_at' => $now  // remove if not using timestamps
+//                    ]);
 //
-//                $this->askWeather ();
+//                }
 //            }
-//        });
+//        }
 //    }
 
     private function ShowButton () {
@@ -115,21 +123,7 @@ class mainConversation extends conversation
         });
     }
 
-//    private function exit() {
-//        $db = new database();
-//        $db->id_chat    = $this->bot->getUser()->getId();
-//        $db->name       = $this->response[0];
-//        $db->response   = $this->response[1];
-//        $db->save();
-//
-//        $attachment = new Image('https://gykov.ru/projects/botelegram.png');
-//
-//        $message = OutgoingMessage::create('До новых встреч!')
-//            ->withAttachment($attachment);
-//        $this->bot->reply($message);
-//
-//        return true;
-//    }
+
 
     private function LoadToDbNomenklatura($data){
 //        info($data);
@@ -272,6 +266,7 @@ class mainConversation extends conversation
                         }
                     });
                 }else{
+                    //$this->CheckFileOldNomenclatura();
                     $info_nimenklatura = $this->getNomenklatura($answer->getText());
                     if (!empty($info_nimenklatura)) {
                         $this->OutNomenklatura($info_nimenklatura);
