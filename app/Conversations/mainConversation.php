@@ -24,18 +24,22 @@ class mainConversation extends conversation
     public $response = [];
 
     public function run () {
-
+        info(request()->all());
             $channel_download=request()->all();
-            if(!empty($channel_download['channel_post']['sender_chat']['title']) && $channel_download['channel_post']['sender_chat']['title'] == 'ЗагрузкаФайловВБота' && !empty($channel_download['channel_post']['document'])){
+            if(!empty($channel_download['channel_post']['sender_chat']['title'])){ //если канал то иные команды не выполняем
 
+                if($channel_download['channel_post']['sender_chat']['title'] == 'ЗагрузкаФайловВБота' && !empty($channel_download['channel_post']['document'])){
 
-                $LoadFile=new LoadFileTController();
-               $Loader= $LoadFile->load($channel_download['channel_post']['document']['file_id']);
+                    $LoadFile=new LoadFileTController();
+                    $Loader= $LoadFile->load($channel_download['channel_post']['document']['file_id']);
 
-               if($Loader == true){
-                   $this->bot->reply("Файл Записан");
-                   $this->NomenclaturaFile();
-               }
+                    if($Loader == true){
+                        $this->bot->reply("Файл Записан");
+                        $this->NomenclaturaFile();
+                    }
+
+                }
+
                 return true;
             }else{
                 try {
@@ -196,7 +200,7 @@ class mainConversation extends conversation
                 if( $answer->getText () != '' ){
                     $this->extracted($answer);
                 }
-            });
+            },['parse_mode' => 'HTML','reply_to_message_id'=> $this->getMessageId()]);
         }
 
 
@@ -236,16 +240,26 @@ class mainConversation extends conversation
 
         $question = BotManQuestion::create($text);
 
+
         $this->ask( $question, function ( BotManAnswer $answer ) {
             if( $answer->getText () != '' ){
                 $this->extracted($answer);
             }
-        },['parse_mode' => 'HTML']);
+        },['parse_mode' => 'HTML','reply_to_message_id'=> $this->getMessageId()]);
 
 
 
 
     }
+
+    private function getMessageId(){
+        $message=request()->all();
+        $message_id='';
+        if($message['message']['message_id']){
+            $message_id=$message['message']['message_id'];
+        }
+        return $message_id;
+}
 
     /**
      * @param BotManAnswer $answer
