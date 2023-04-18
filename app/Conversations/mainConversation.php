@@ -24,7 +24,6 @@ class mainConversation extends conversation
     public $response = [];
 
     public function run () {
-        info(request()->all());
             $channel_download=request()->all();
             if(!empty($channel_download['channel_post']['sender_chat']['title'])){ //если канал то иные команды не выполняем
 
